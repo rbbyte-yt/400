@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>400 Bad Request</title>
+
+<style>
+
+body{
+margin:0;
+overflow:hidden;
+background:black;
+font-family:Segoe UI,Arial,sans-serif;
+color:white;
+}
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-4;
+}
+
+.overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:radial-gradient(circle at center, rgba(255,0,0,0.15), rgba(0,0,0,0.95));
+z-index:-3;
+}
+
+.scanlines{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:repeating-linear-gradient(
+0deg,
+rgba(255,255,255,0.03),
+rgba(255,255,255,0.03) 1px,
+transparent 1px,
+transparent 3px
+);
+z-index:-2;
+pointer-events:none;
+}
+
+.posters{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:grid;
+grid-template-columns:repeat(8,1fr);
+opacity:.07;
+z-index:-3;
+}
+
+.posters div{
+background-size:cover;
+background-position:center;
+animation:posterMove 30s linear infinite;
+}
+
+@keyframes posterMove{
+from{transform:translateY(0)}
+to{transform:translateY(-200px)}
+}
+
+.box{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+padding:70px 90px;
+border-radius:20px;
+background:rgba(255,0,0,0.12);
+backdrop-filter:blur(14px);
+border:1px solid rgba(255,0,0,0.5);
+box-shadow:0 0 40px rgba(255,0,0,0.6);
+}
+
+h1{
+font-size:95px;
+margin:0;
+color:#ff2b2b;
+text-shadow:0 0 20px red,0 0 60px red;
+animation:glitch 2s infinite;
+}
+
+@keyframes glitch{
+0%{transform:translate(0)}
+20%{transform:translate(-3px,3px)}
+40%{transform:translate(3px,-3px)}
+60%{transform:translate(-3px,-3px)}
+80%{transform:translate(3px,3px)}
+100%{transform:translate(0)}
+}
+
+p{
+font-size:20px;
+margin:15px 0 30px 0;
+opacity:.9;
+}
+
+a{
+display:inline-block;
+padding:14px 36px;
+background:#ff0000;
+color:white;
+text-decoration:none;
+border-radius:8px;
+font-weight:bold;
+transition:.3s;
+box-shadow:0 0 20px red;
+}
+
+a:hover{
+transform:scale(1.1);
+box-shadow:0 0 50px red;
+}
+
+.loader{
+width:200px;
+height:4px;
+background:rgba(255,255,255,.2);
+margin:20px auto;
+overflow:hidden;
+border-radius:5px;
+}
+
+.loader span{
+display:block;
+height:100%;
+width:40%;
+background:red;
+animation:load 2s linear infinite;
+}
+
+@keyframes load{
+from{transform:translateX(-100%)}
+to{transform:translateX(300%)}
+}
+
+.particles span{
+position:absolute;
+width:4px;
+height:4px;
+background:red;
+border-radius:50%;
+animation:float 9s linear infinite;
+opacity:.7;
+}
+
+@keyframes float{
+from{transform:translateY(110vh) scale(0)}
+to{transform:translateY(-10vh) scale(1.3)}
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="overlay"></div>
+<div class="scanlines"></div>
+
+<div class="posters">
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/q719jXXEzOoYaps6babgKnONONX.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/9Gtg2DzBhmYamXBS1hKAhiwbBKS.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/r7XifzvtezNt31ypvsmb6Oqxw49.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/xBHvZcjRiWyobQ9kxBhO6B2dtRI.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/1BIoJGKbXjdFDAqUEiA2VHqkK1Z.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/wcKFYIiVDvRURrzglV9kGu7fpfY.jpg')"></div>
+<div style="background-image:url('https://image.tmdb.org/t/p/w500/6agKYU5IQFpuDyUYPu39w7UCRrJ.jpg')"></div>
+</div>
+
+<div class="box">
+<h1>400</h1>
+<p>Bad Request</p>
+
+<div class="loader"><span></span></div>
+
+<a href="https://rabbi.kesug.com">Back to Home</a>
+</div>
+
+<div class="particles" id="particles"></div>
+
+<script>
+
+const canvas=document.getElementById("matrix")
+const ctx=canvas.getContext("2d")
+
+canvas.height=window.innerHeight
+canvas.width=window.innerWidth
+
+const letters="01"
+const fontSize=16
+const columns=canvas.width/fontSize
+const drops=[]
+
+for(let x=0;x<columns;x++)drops[x]=1
+
+function draw(){
+
+ctx.fillStyle="rgba(0,0,0,0.05)"
+ctx.fillRect(0,0,canvas.width,canvas.height)
+
+ctx.fillStyle="#00ff9d"
+ctx.font=fontSize+"px monospace"
+
+for(let i=0;i<drops.length;i++){
+
+const text=letters[Math.floor(Math.random()*letters.length)]
+
+ctx.fillText(text,i*fontSize,drops[i]*fontSize)
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0
+
+drops[i]++
+
+}
+
+}
+
+setInterval(draw,33)
+
+const particles=document.getElementById("particles")
+
+for(let i=0;i<50;i++){
+
+const p=document.createElement("span")
+
+p.style.left=Math.random()*100+"vw"
+p.style.animationDuration=(Math.random()*6+6)+"s"
+p.style.animationDelay=Math.random()*5+"s"
+
+particles.appendChild(p)
+
+}
+
+</script>
+
+</body>
+</html>
